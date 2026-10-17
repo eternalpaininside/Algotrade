@@ -1,7 +1,7 @@
 /backend/          @eternalpaininside
 /infrastructure/    @eternalpaininside
-/.github/          @eternalpaininside fishyAHP
+/.github/          @eternalpaininside
 /migrations/        @eternalpaininside
-/compute/           @eternalpaininside ilazukov525-afk
-/proto/             @eternalpaininside ilazukov525-afk fishyAHP
+/compute/           @eternalpaininside @ilazukov525-afk
+/proto/             @eternalpaininside @ilazukov525-afk
 /frontend/
