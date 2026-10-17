@@ -1,0 +1,14 @@
+# IDE и система
+.idea/
+.vscode/
+.DS_Store
+
+# Локальные настройки
+.env
+
+# Зависимости и результаты сборки
+node_modules/
+dist/
+build/
+cmake-build-*/
+bin/
