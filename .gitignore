@@ -12,3 +12,4 @@ dist/
 build/
 cmake-build-*/
 bin/
+out/
