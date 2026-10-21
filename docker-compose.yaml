@@ -1,0 +1,4 @@
+services:
+  application:
+    build: ./backend/cmd/
+    container_name: application-container
