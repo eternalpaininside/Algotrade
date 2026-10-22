@@ -1,4 +1,4 @@
-package logger
+package core_logger
 
 import (
 	"context"
@@ -18,7 +18,7 @@ type Logger struct {
 }
 
 func FromContext(ctx context.Context) *Logger {
-	log, ok := ctx.Value("log").(*Logger)
+	log, ok := ctx.Value("logger").(*Logger)
 	if !ok {
 		panic("not found logger in context")
 	}
@@ -30,14 +30,18 @@ func NewLogger(
 	config Config,
 ) (*Logger, error) {
 	level := zap.NewAtomicLevel()
-	if err := level.UnmarshalText([]byte(config.Level)); err != nil {
+	if err := level.UnmarshalText(
+		[]byte(config.Level),
+	); err != nil {
 		return nil, fmt.Errorf(
 			"unmarshal log level: %w",
 			err,
 		)
 	}
 
-	if err := os.MkdirAll(config.Folder, 0o755); err != nil {
+	if err := os.MkdirAll(
+		config.Folder, 0o755,
+	); err != nil {
 		return nil, fmt.Errorf(
 			"mkdir log: %w",
 			err,
@@ -47,10 +51,14 @@ func NewLogger(
 	timestamp := time.Now().Format("2006-01-02T15-04-05.000000")
 	logPath := filepath.Join(
 		config.Folder,
-		timestamp,
+		fmt.Sprintf("%s.log", timestamp),
 	)
 
-	file, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o0644)
+	file, err := os.OpenFile(
+		logPath,
+		os.O_CREATE|os.O_APPEND|os.O_WRONLY,
+		0o0644,
+	)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"open log file: %w",
@@ -59,7 +67,9 @@ func NewLogger(
 	}
 
 	zapCfg := zap.NewDevelopmentEncoderConfig()
-	zapCfg.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02T15:04:05.000000")
+	zapCfg.EncodeTime = zapcore.TimeEncoderOfLayout(
+		"2006-01-02T15:04:05.000000",
+	)
 
 	encoder := zapcore.NewConsoleEncoder(zapCfg)
 	core := zapcore.NewTee(
@@ -79,6 +89,15 @@ func NewLogger(
 	}, nil
 }
 
-func (l *Logger) Close() error {
-	return l.file.Close()
+func (l *Logger) With(fields ...zap.Field) *Logger {
+	return &Logger{
+		Logger: l.Logger.With(fields...),
+		file:   l.file,
+	}
+}
+
+func (l *Logger) Close() {
+	if err := l.file.Close(); err != nil {
+		fmt.Printf("failed close logger: %v", err)
+	}
 }

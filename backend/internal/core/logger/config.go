@@ -1,4 +1,4 @@
-package logger
+package core_logger
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ func NewConfig() (Config, error) {
 	var config Config
 
 	if err := envconfig.Process(
-		"LEVEL",
+		"LOGGER",
 		&config,
 	); err != nil {
 		return Config{}, fmt.Errorf(
