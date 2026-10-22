@@ -1,9 +1,12 @@
-package users_transport_http
+package usershttp
 
 import (
 	jsonv2 "encoding/json/v2"
 	"net/http"
 	"time"
+
+	corelogger "github.com/eternalpaininside/Algotrade.git/backend/internal/core/logger"
+	"go.uber.org/zap"
 )
 
 type CreateUserRequest struct {
@@ -25,6 +28,11 @@ func (u *UserHTTPHandler) CreateUser(
 	rw http.ResponseWriter,
 	r *http.Request,
 ) {
+	ctx := r.Context()
+	log := corelogger.FromContext(ctx)
+
+	log.Debug("start create user handler")
+
 	var request CreateUserRequest
 
 	r.Body = http.MaxBytesReader(rw, r.Body, 1<<20)
@@ -33,7 +41,16 @@ func (u *UserHTTPHandler) CreateUser(
 		&request,
 		jsonv2.RejectUnknownMembers(true),
 	); err != nil {
-		http.Error(rw)
+		log.Error(
+			"json unmarshal read",
+			zap.Error(err))
+		http.Error(
+			rw,
+			"unexpected errors while decoding",
+			http.StatusBadRequest,
+		)
+		return
 	}
 
+	rw.WriteHeader(http.StatusOK)
 }

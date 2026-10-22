@@ -27,7 +27,7 @@ func FromContext(ctx context.Context) *Logger {
 }
 
 func NewLogger(
-	config Config,
+	config LoggerConfig,
 ) (*Logger, error) {
 	level := zap.NewAtomicLevel()
 	if err := level.UnmarshalText(
@@ -80,7 +80,7 @@ func NewLogger(
 	logger := zap.New(
 		core,
 		zap.AddCaller(),
-		zap.AddStacktrace(zapcore.ErrorLevel),
+		zap.AddStacktrace(zapcore.DPanicLevel),
 	)
 
 	return &Logger{

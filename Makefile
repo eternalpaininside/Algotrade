@@ -48,3 +48,8 @@ migrate-up:
 
 migrate-down:
 	@make migrate-action acton=down
+
+algotrade-run:
+	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
+	go mod tidy && \
+	go run ./backend/cmd/main.go

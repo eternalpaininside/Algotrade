@@ -1,4 +1,4 @@
-package middleware
+package coremiddleware
 
 import (
 	"context"
@@ -35,7 +35,7 @@ func Logging(logger *corelogger.Logger) Middleware {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 			requestID := r.Header.Get(RequestIDHeader)
 
-			logger.With(
+			requestLogger := logger.With(
 				zap.String("request_id", requestID),
 				zap.String("url", r.URL.String()),
 			)
@@ -43,7 +43,7 @@ func Logging(logger *corelogger.Logger) Middleware {
 			ctx := context.WithValue(
 				r.Context(),
 				"logger",
-				logger,
+				requestLogger,
 			)
 
 			next.ServeHTTP(rw, r.WithContext(ctx))
