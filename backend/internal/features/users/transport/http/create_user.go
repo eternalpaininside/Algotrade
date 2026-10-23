@@ -1,27 +1,27 @@
 package usershttp
 
 import (
-	jsonv2 "encoding/json/v2"
 	"net/http"
 	"time"
 
+	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/domain"
 	corelogger "github.com/eternalpaininside/Algotrade.git/backend/internal/core/logger"
-	"go.uber.org/zap"
+	corehttprequest "github.com/eternalpaininside/Algotrade.git/backend/internal/core/transport/http/request"
+	corehttpresponse "github.com/eternalpaininside/Algotrade.git/backend/internal/core/transport/http/response"
 )
 
 type CreateUserRequest struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Pass  string `json:"pass"`
+	Name  string `json:"name" validate:"required,max=50"`
+	Email string `json:"email" validate:"required,email,max=254"`
+	Pass  string `json:"pass" validate:"required,min=15,max=128"`
 }
 
 type CreateUserResponse struct {
-	ID        int       `json:"user_id"`
-	CreatedAT time.Time `json:"created_at"`
+	ID        int64     `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
 
 	Name  string `json:"name"`
 	Email string `json:"email"`
-	Pass  string `json:"pass"`
 }
 
 func (u *UserHTTPHandler) CreateUser(
@@ -30,27 +30,53 @@ func (u *UserHTTPHandler) CreateUser(
 ) {
 	ctx := r.Context()
 	log := corelogger.FromContext(ctx)
-
-	log.Debug("start create user handler")
+	responseHandler := corehttpresponse.NewHTTPResponseHandler(
+		log,
+		rw,
+	)
 
 	var request CreateUserRequest
-
-	r.Body = http.MaxBytesReader(rw, r.Body, 1<<20)
-	if err := jsonv2.UnmarshalRead(
-		r.Body,
-		&request,
-		jsonv2.RejectUnknownMembers(true),
-	); err != nil {
-		log.Error(
-			"json unmarshal read",
-			zap.Error(err))
-		http.Error(
-			rw,
-			"unexpected errors while decoding",
-			http.StatusBadRequest,
+	if err := corehttprequest.DecodeAndValidateRequest(
+		r, &request); err != nil {
+		responseHandler.ErrorResponse(
+			err,
+			"failed to decode and validate request",
 		)
+
 		return
 	}
 
-	rw.WriteHeader(http.StatusOK)
+	userDomain := domainFromDTO(request)
+	userDomain, err := u.userService.CreateUser(ctx, userDomain)
+	if err != nil {
+		responseHandler.ErrorResponse(
+			err,
+			"failed to create user",
+		)
+	}
+
+	response := dtoFromDomain(userDomain)
+
+	responseHandler.JSONResponse(response, http.StatusCreated)
+}
+
+func domainFromDTO(
+	dto CreateUserRequest,
+) domain.User {
+	return domain.NewUserUninitialized(
+		dto.Name,
+		dto.Email,
+		dto.Pass,
+	)
+}
+
+func dtoFromDomain(
+	user domain.User,
+) CreateUserResponse {
+	return CreateUserResponse{
+		ID:        user.ID,
+		CreatedAt: user.CreatedAt,
+		Name:      user.Name,
+		Email:     user.Email,
+	}
 }
