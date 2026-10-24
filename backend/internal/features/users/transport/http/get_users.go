@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json/v2"
 	"fmt"
-	"iter"
 	"net/http"
 
 	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/domain"
@@ -18,7 +17,7 @@ const (
 	OffsetKey = "offset"
 )
 
-type GetUsersResponse iter.Seq[UserDTOResponse]
+type GetUsersResponse []UserDTOResponse
 
 func (r *GetUsersResponse) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
@@ -104,13 +103,12 @@ func getPaginationQueryParams(
 }
 
 func usersDTOFromDomains(
-	users iter.Seq[domain.User],
-) iter.Seq[UserDTOResponse] {
-	return func(yield func(UserDTOResponse) bool) {
-		for user := range users {
-			if !yield(userDTOFromDomain(user)) {
-				return
-			}
-		}
+	users []domain.User,
+) []UserDTOResponse {
+	usersDTO := make([]UserDTOResponse, 0, len(users))
+	for _, user := range users {
+		usersDTO = append(usersDTO, userDTOFromDomain(user))
 	}
+
+	return usersDTO
 }
