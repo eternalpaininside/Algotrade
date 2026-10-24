@@ -6,8 +6,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "127.0.0.1:${POSTGRES_PORT}:5432"
     volumes:
       - ${PROJECT_ROOT}/out/pgdata:/var/lib/postgresql
     restart: always
@@ -16,6 +14,16 @@ services:
     image: migrate/migrate:v4.20.1
     volumes:
       - ${PROJECT_ROOT}/migrations:/migrations
+
+  port-forwarder:
+    image: alpine/socat:1.8.1.3
+    container_name: algotrade-postgres-port-forwarder
+    command: tcp-listen:5432,fork,reuseaddr tcp-connect:algotrade-postgres:5432
+    ports:
+      - "127.0.0.1:5432:5432"
+    depends_on:
+      - algotrade-postgres
+
 
   application:
     build: ./backend/cmd/
