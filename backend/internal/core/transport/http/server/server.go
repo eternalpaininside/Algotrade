@@ -95,7 +95,7 @@ func (h *HTTPServer) Run(
 		h.log.Warn("shutdown HTTP server")
 
 		shutdownContext, cancel := context.WithTimeout(
-			ctx,
+			context.Background(),
 			h.config.ShutdownTimeout,
 		)
 		defer cancel()

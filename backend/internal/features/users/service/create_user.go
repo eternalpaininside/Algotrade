@@ -7,7 +7,7 @@ import (
 	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/domain"
 )
 
-func (u UserService) CreateUser(
+func (u *UserService) CreateUser(
 	ctx context.Context,
 	user domain.User,
 ) (domain.User, error) {
@@ -19,11 +19,11 @@ func (u UserService) CreateUser(
 	}
 
 	user, err := u.repository.CreateUser(ctx, user)
-	if err != nil{
+	if err != nil {
 		return domain.User{}, fmt.Errorf(
 			"repository create user: %w",
 			err,
-			)
+		)
 	}
 
 	return user, nil

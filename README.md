@@ -50,11 +50,20 @@ Algotrade/
 
 1. Скопировать `.env.example` в `.env`.
 2. Заполнить переменные окружения.
-3. Запустить PostgreSQL через Docker Compose.
+3. Запустить PostgreSQL.
 4. Применить миграции.
+5. Открыть порт-форвардер для динамического подсоединения к бд.
+6. Запустить приложение.
 
 ## Makefile
 
 - `make migrate-init` — создание начальной миграции.
 - `make migrate-up` — применение миграций.
 - `make migrate-down` — откат миграций.
+- `make migrate-create` – создание новых файлов миграций.
+- `make env-up` – запуск PostgreSQL.
+- `make env-down` – завершение работы бд. 
+- `make env-cleanup` – сброс бд и закрытие порта для работы с ней.
+- `make env-port-forward` – открытие порта для подключения к PostgreSQL.
+- `make env-port-close` – закрытие порта для подключения к PostgreSQL. 
+- `make algotrade-run` – запуск приложения.
