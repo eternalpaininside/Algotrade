@@ -12,12 +12,18 @@ env-down:
 env-cleanup:
 	@read -p "clean all environment volumes[y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
-	  docker compose down algotrade-postgres && \
-	  rm -rf out/pgdata &&\
+	  docker compose down port-forwarder algotrade-postgres && \
+	  rm -rf out/pgdata && \
 	  echo "environment files was cleaned up"; \
 	else \
 	  echo "cleaning was canceled"; \
 	fi
+
+env-port-forward:
+	@docker compose up -d port-forwarder
+
+env-port-close:
+	@docker compose down port-forwarder
 
 migrate-create:
 	@if [ -z "$(seq)" ]; then \
@@ -51,5 +57,6 @@ migrate-down:
 
 algotrade-run:
 	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
+	export POSTGRES_HOST=localhost && \
 	go mod tidy && \
 	go run ./backend/cmd/main.go

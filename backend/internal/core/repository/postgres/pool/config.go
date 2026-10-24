@@ -19,7 +19,7 @@ type PoolConfig struct {
 func NewConfig() (PoolConfig, error) {
 	var config PoolConfig
 
-	if err := envconfig.Process("POSGRES", &config); err != nil {
+	if err := envconfig.Process("POSTGRES", &config); err != nil {
 		return PoolConfig{}, fmt.Errorf(
 			"process envconfig: %w",
 			err,
@@ -36,7 +36,7 @@ func NewConfigMust() PoolConfig {
 		panic(fmt.Errorf(
 			"get POSTGRES connection pool config: %w",
 			err,
-			))
+		))
 	}
 
 	return config

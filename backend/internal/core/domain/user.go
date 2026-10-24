@@ -46,13 +46,6 @@ func NewUserUninitialized(
 }
 
 func (u User) Validate() error {
-	if u.ID <= 0 {
-		return fmt.Errorf(
-			"uninitialized user id: %w",
-			coreerrors.ErrInvalidArgument,
-		)
-	}
-
 	u.Name = strings.TrimSpace(u.Name)
 	if u.Name == "" {
 		return fmt.Errorf(

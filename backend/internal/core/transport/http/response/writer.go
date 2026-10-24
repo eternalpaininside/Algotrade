@@ -1,6 +1,9 @@
 package corehttpresponse
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 const StatusCodeUninitialized = -1
 
@@ -19,10 +22,18 @@ func NewResponseWriter(
 }
 
 func (rw *ResponseWriter) WriteHeader(statusCode int) {
-	rw.ResponseWriter.WriteHeader(statusCode)
-	rw.statusCode = statusCode
+	if rw.statusCode == StatusCodeUninitialized {
+		rw.ResponseWriter.WriteHeader(statusCode)
+		rw.statusCode = statusCode
+	}
 }
 
 func (rw *ResponseWriter) StatusCodeOrPanic() int {
+	if rw.statusCode == StatusCodeUninitialized {
+		panic(fmt.Errorf(
+			"uninitialized status code: %d",
+			rw.statusCode,
+		))
+	}
 	return rw.statusCode
 }

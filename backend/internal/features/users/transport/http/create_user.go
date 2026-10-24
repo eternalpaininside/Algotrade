@@ -53,6 +53,8 @@ func (u *UserHTTPHandler) CreateUser(
 			err,
 			"failed to create user",
 		)
+
+		return
 	}
 
 	response := dtoFromDomain(userDomain)

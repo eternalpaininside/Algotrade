@@ -11,6 +11,15 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	ErrBadRequest      = errors.New("BAD_REQUEST")
+	ErrNotFound        = errors.New("NOT_FOUND")
+	ErrConflict        = errors.New("CONFLICT")
+	ErrTooLargeRequest = errors.New("TOO_LARGE_REQUEST_BODY")
+	ErrValidation      = errors.New("VALIDATION_ERROR")
+	ErrInternal        = errors.New("INTERNAL_ERROR")
+)
+
 type HTTPResponseHandler struct {
 	log *corelogger.Logger
 	rw  http.ResponseWriter
@@ -77,33 +86,47 @@ func (h *HTTPResponseHandler) ErrorResponse(
 	msg string,
 ) {
 	var (
-		statusCode int
-		logFunc    func(string, ...zap.Field)
+		statusCode  int
+		logFunc     func(string, ...zap.Field)
+		responseErr error
 	)
 
 	switch {
 	case errors.Is(err, coreerrors.ErrInvalidArgument):
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Warn
+		responseErr = ErrBadRequest
 	case errors.Is(err, coreerrors.ErrNotFound):
 		statusCode = http.StatusNotFound
 		logFunc = h.log.Debug
+		responseErr = ErrNotFound
 	case errors.Is(err, coreerrors.ErrConflict):
 		statusCode = http.StatusConflict
 		logFunc = h.log.Warn
+		responseErr = ErrConflict
 	case errors.Is(err, coreerrors.ErrTooLarge):
 		statusCode = http.StatusRequestEntityTooLarge
 		logFunc = h.log.Warn
+		responseErr = ErrTooLargeRequest
+	case errors.Is(err, coreerrors.ErrValidation):
+		statusCode = http.StatusUnprocessableEntity
+		logFunc = h.log.Warn
+		responseErr = ErrValidation
 	default:
 		statusCode = http.StatusInternalServerError
 		logFunc = h.log.Error
+		responseErr = ErrInternal
 	}
 
 	logFunc(msg, zap.Error(err))
 
+	if statusCode >= 500 {
+		msg = "internal server error"
+	}
+
 	h.errorResponse(
 		statusCode,
-		err,
+		responseErr,
 		msg,
 	)
 }
