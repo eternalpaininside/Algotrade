@@ -2,6 +2,7 @@ package usershttp
 
 import (
 	"context"
+	"iter"
 	"net/http"
 
 	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/domain"
@@ -17,6 +18,10 @@ type UserService interface {
 		ctx context.Context,
 		user domain.User,
 	) (domain.User, error)
+	GetUsers(
+		ctx context.Context,
+		limit, offset *int,
+	) (iter.Seq[domain.User], error)
 }
 
 func NewUserHTTPHandler(

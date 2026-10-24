@@ -2,7 +2,6 @@ package usershttp
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/domain"
 	corelogger "github.com/eternalpaininside/Algotrade.git/backend/internal/core/logger"
@@ -16,13 +15,7 @@ type CreateUserRequest struct {
 	Pass  string `json:"pass" validate:"required,min=15,max=128"`
 }
 
-type CreateUserResponse struct {
-	ID        int64     `json:"user_id"`
-	CreatedAt time.Time `json:"created_at"`
-
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
+type CreateUserResponse UserDTOResponse
 
 func (u *UserHTTPHandler) CreateUser(
 	rw http.ResponseWriter,
@@ -57,7 +50,7 @@ func (u *UserHTTPHandler) CreateUser(
 		return
 	}
 
-	response := dtoFromDomain(userDomain)
+	response := CreateUserResponse(userDTOFromDomain(userDomain))
 
 	responseHandler.JSONResponse(response, http.StatusCreated)
 }
@@ -70,15 +63,4 @@ func domainFromDTO(
 		dto.Email,
 		dto.Pass,
 	)
-}
-
-func dtoFromDomain(
-	user domain.User,
-) CreateUserResponse {
-	return CreateUserResponse{
-		ID:        user.ID,
-		CreatedAt: user.CreatedAt,
-		Name:      user.Name,
-		Email:     user.Email,
-	}
 }
