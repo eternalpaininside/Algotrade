@@ -45,3 +45,16 @@ Algotrade/
 ├── .gitignore
 └── README.md
 ```
+
+## Локальный запуск
+
+1. Скопировать `.env.example` в `.env`.
+2. Заполнить переменные окружения.
+3. Запустить PostgreSQL через Docker Compose.
+4. Применить миграции.
+
+## Makefile
+
+- `make migrate-init` — создание начальной миграции.
+- `make migrate-up` — применение миграций.
+- `make migrate-down` — откат миграций.
