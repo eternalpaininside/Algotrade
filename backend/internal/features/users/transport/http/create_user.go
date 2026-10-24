@@ -30,7 +30,8 @@ func (u *UserHTTPHandler) CreateUser(
 
 	var request CreateUserRequest
 	if err := corehttprequest.DecodeAndValidateRequest(
-		r, &request); err != nil {
+		r, &request,
+	); err != nil {
 		responseHandler.ErrorResponse(
 			err,
 			"failed to decode and validate request",

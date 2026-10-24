@@ -1,8 +1,6 @@
 package usershttp
 
 import (
-	"bytes"
-	"encoding/json/v2"
 	"fmt"
 	"net/http"
 
@@ -18,31 +16,6 @@ const (
 )
 
 type GetUsersResponse []UserDTOResponse
-
-func (r *GetUsersResponse) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	buf.WriteByte('[')
-
-	for user := range *r {
-		if buf.Len() != 1 {
-			buf.WriteByte(',')
-		}
-
-		data, err := json.Marshal(user)
-		if err != nil{
-			return nil, fmt.Errorf(
-				"marshal user: %v: %w",
-				user,
-				err,
-				)
-		}
-
-		buf.Write(data)
-	}
-
-	buf.WriteByte(']')
-	return buf.Bytes(), nil
-}
 
 func (u *UserHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

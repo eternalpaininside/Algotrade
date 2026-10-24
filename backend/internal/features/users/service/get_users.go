@@ -37,4 +37,6 @@ func (u *UserService) GetUsers(
 			err,
 		)
 	}
+
+	return userDomains, nil
 }

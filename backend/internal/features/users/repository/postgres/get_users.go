@@ -7,12 +7,13 @@ import (
 	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/domain"
 )
 
-func (r *UserRepository) GetUsers(
+func (u *UserRepository) GetUsers(
 	ctx context.Context,
 	limit, offset *int,
 ) ([]domain.User, error) {
 	ctx, cancel := context.WithTimeout(
-		ctx, r.pool.OpTimeout(),
+		ctx,
+		u.pool.OpTimeout(),
 	)
 	defer cancel()
 
@@ -21,9 +22,10 @@ SELECT id, name, email, pass, created_at
 FROM algotrade.users
 ORDER BY id ASC
 LIMIT $1
-OFFSET $2;`
+OFFSET $2;
+`
 
-	rows, err := r.pool.Query(
+	rows, err := u.pool.Query(
 		ctx,
 		query,
 		limit,
