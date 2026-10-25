@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
+	"net/http"
 	"os/signal"
 	"syscall"
 
@@ -75,8 +77,10 @@ func main() {
 	server.RegisterAPIRoutes(apiVersionRouter)
 
 	if err = server.Run(ctx); err != nil {
-		logger.Error("server run",
-			zap.Error(err),
-		)
+		if !errors.Is(err, http.ErrServerClosed) {
+			logger.Error("server run",
+				zap.Error(err),
+			)
+		}
 	}
 }

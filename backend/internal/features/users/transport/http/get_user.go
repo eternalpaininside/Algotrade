@@ -42,7 +42,11 @@ func (u *UserHTTPHandler) GetUser(
 		)
 	}
 
-	response := GetUserResponse(userDTOFromDomain(user))
+	response := GetUserResponse(
+		userDTOFromDomain(
+			user,
+		),
+	)
 	responseHandler.JSONResponse(
 		response,
 		http.StatusOK,

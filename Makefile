@@ -46,7 +46,7 @@ migrate-action:
   	fi; \
 	docker compose run --rm algotrade-postgres-migrate \
     		-path /migrations \
-    		-database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@algotrade-postgres:5432/${POSTGRES_DB}?sslomode=disable \
+    		-database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@algotrade-postgres:5432/${POSTGRES_DB}?sslmode=disable \
     		"$(action)";
 
 migrate-up:

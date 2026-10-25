@@ -20,7 +20,7 @@ func (u *UserRepository) CreateUser(
 	query := `
 INSERT INTO algotrade.users(user_name, email, password, created_at)
 VALUES ($1, $2, $3, $4)
-RETURNING id, user_name, email, created_at;
+RETURNING user_id, user_name, email, password, created_at;
 `
 	row := u.pool.QueryRow(
 		ctx, query,
@@ -33,7 +33,7 @@ RETURNING id, user_name, email, created_at;
 		&userModel.Name,
 		&userModel.Email,
 		&userModel.Password,
-		userModel.CreateAt,
+		&userModel.CreateAt,
 	); err != nil {
 		return domain.User{}, fmt.Errorf(
 			"row scan error: %w",

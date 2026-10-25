@@ -18,9 +18,14 @@ func (u *UserRepository) GetUsers(
 	defer cancel()
 
 	query := `
-SELECT id, name, email, pass, created_at
+SELECT 
+    user_id,
+    user_name,
+    email,
+    password,
+    created_at
 FROM algotrade.users
-ORDER BY id ASC
+ORDER BY user_id ASC
 LIMIT $1
 OFFSET $2;
 `

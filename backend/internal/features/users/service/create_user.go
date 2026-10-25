@@ -18,7 +18,10 @@ func (u *UserService) CreateUser(
 		)
 	}
 
-	user, err := u.repository.CreateUser(ctx, user)
+	user, err := u.repository.CreateUser(
+		ctx,
+		user,
+	)
 	if err != nil {
 		return domain.User{}, fmt.Errorf(
 			"repository create user: %w",

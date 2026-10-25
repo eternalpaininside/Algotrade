@@ -47,7 +47,8 @@ func (u *UserHTTPHandler) PatchUser(
 	}
 
 	log.Debug(
-		fmt.Sprintf("PatchUserRequest fields:\n%s",
+		fmt.Sprintf(
+			"PatchUserRequest fields:\n%s",
 			request.String(),
 		),
 	)
