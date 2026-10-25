@@ -26,7 +26,9 @@ func main() {
 	)
 	defer cancel()
 
-	logger, err := corelogger.NewLogger(corelogger.NewConfigMust())
+	logger, err := corelogger.NewLogger(
+		corelogger.NewConfigMust(),
+	)
 	if err != nil {
 		log.Fatalf(
 			"failed to init application logger: %v\n",
@@ -73,8 +75,12 @@ func main() {
 	apiVersionRouter := corehttpserver.NewApiRouter(
 		corehttpserver.ApiVersion1,
 	)
-	apiVersionRouter.RegisterRoutes(usersTransport.Routes()...)
-	server.RegisterAPIRoutes(apiVersionRouter)
+	apiVersionRouter.RegisterRoutes(
+		usersTransport.Routes()...,
+	)
+	server.RegisterAPIRoutes(
+		apiVersionRouter,
+	)
 
 	if err = server.Run(ctx); err != nil {
 		if !errors.Is(err, http.ErrServerClosed) {

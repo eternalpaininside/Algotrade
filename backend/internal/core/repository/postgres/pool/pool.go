@@ -68,7 +68,7 @@ func NewConnectionPool(
 		)
 	}
 
-	if err := pool.Ping(ctx); err != nil {
+	if err = pool.Ping(ctx); err != nil {
 		return nil, fmt.Errorf(
 			"pgxpool ping: %w",
 			err,

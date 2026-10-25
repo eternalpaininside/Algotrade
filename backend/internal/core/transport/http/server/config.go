@@ -15,9 +15,12 @@ type Config struct {
 func NewConfig() (Config, error) {
 	var config Config
 
-	if err := envconfig.Process("HTTP", &config); err != nil {
+	if err := envconfig.Process(
+		"HTTP",
+		&config,
+	); err != nil {
 		return Config{}, fmt.Errorf(
-			"process envonfig: %w",
+			"process envconfig: %w",
 			err,
 		)
 	}

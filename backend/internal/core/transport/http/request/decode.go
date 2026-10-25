@@ -16,13 +16,19 @@ func DecodeAndValidateRequest(
 	r *http.Request,
 	dest any,
 ) error {
-	r.Body = http.MaxBytesReader(nil, r.Body, 1<<20)
+	r.Body = http.MaxBytesReader(
+		nil,
+		r.Body,
+		1<<20,
+	)
 	if err := jsonv2.UnmarshalRead(
 		r.Body,
 		dest,
 		jsonv2.RejectUnknownMembers(true),
 	); err != nil {
-		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
+		if _, ok := errors.AsType[*http.MaxBytesError](
+			err,
+		); ok {
 			return fmt.Errorf(
 				"%w: %w",
 				coreerrors.ErrTooLarge,
@@ -37,8 +43,12 @@ func DecodeAndValidateRequest(
 		)
 	}
 
-	if err := requestValidator.Struct(dest); err != nil {
-		if _, ok := errors.AsType[validator.ValidationErrors](err); ok {
+	if err := requestValidator.Struct(
+		dest,
+	); err != nil {
+		if _, ok := errors.AsType[validator.ValidationErrors](
+			err,
+		); ok {
 			return fmt.Errorf(
 				"%w: %w",
 				coreerrors.ErrInvalidArgument,

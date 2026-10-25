@@ -62,7 +62,9 @@ func (u User) Validate() error {
 		)
 	}
 
-	re := regexp.MustCompile(`^[^\s@]+@[^\s@]+\.[^\s@]+$`)
+	re := regexp.MustCompile(
+		`^[^\s@]+@[^\s@]+\.[^\s@]+$`,
+	)
 	if !re.Match([]byte(u.Email)) {
 		return fmt.Errorf(
 			"invalid user email format: %w",

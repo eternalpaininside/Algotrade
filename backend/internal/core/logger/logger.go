@@ -40,7 +40,8 @@ func NewLogger(
 	}
 
 	if err := os.MkdirAll(
-		config.Folder, 0o755,
+		config.Folder,
+		0o755,
 	); err != nil {
 		return nil, fmt.Errorf(
 			"mkdir log: %w",
@@ -48,7 +49,9 @@ func NewLogger(
 		)
 	}
 
-	timestamp := time.Now().Format("2006-01-02T15-04-05.000000")
+	timestamp := time.Now().Format(
+		"2006-01-02T15-04-05.000000",
+	)
 	logPath := filepath.Join(
 		config.Folder,
 		fmt.Sprintf("%s.log", timestamp),
@@ -71,10 +74,20 @@ func NewLogger(
 		"2006-01-02T15:04:05.000000",
 	)
 
-	encoder := zapcore.NewConsoleEncoder(zapCfg)
+	encoder := zapcore.NewConsoleEncoder(
+		zapCfg,
+	)
 	core := zapcore.NewTee(
-		zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), level),
-		zapcore.NewCore(encoder, zapcore.AddSync(file), level),
+		zapcore.NewCore(
+			encoder,
+			zapcore.AddSync(os.Stdout),
+			level,
+		),
+		zapcore.NewCore(
+			encoder,
+			zapcore.AddSync(file),
+			level,
+		),
 	)
 
 	logger := zap.New(
@@ -98,6 +111,9 @@ func (l *Logger) With(fields ...zap.Field) *Logger {
 
 func (l *Logger) Close() {
 	if err := l.file.Close(); err != nil {
-		fmt.Printf("failed close logger: %v", err)
+		fmt.Printf(
+			"failed close logger: %v",
+			err,
+		)
 	}
 }
