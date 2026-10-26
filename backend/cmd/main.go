@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
+	"net/http"
 	"os/signal"
 	"syscall"
 
@@ -24,7 +26,9 @@ func main() {
 	)
 	defer cancel()
 
-	logger, err := corelogger.NewLogger(corelogger.NewConfigMust())
+	logger, err := corelogger.NewLogger(
+		corelogger.NewConfigMust(),
+	)
 	if err != nil {
 		log.Fatalf(
 			"failed to init application logger: %v\n",
@@ -71,12 +75,18 @@ func main() {
 	apiVersionRouter := corehttpserver.NewApiRouter(
 		corehttpserver.ApiVersion1,
 	)
-	apiVersionRouter.RegisterRoutes(usersTransport.Routes()...)
-	server.RegisterAPIRoutes(apiVersionRouter)
+	apiVersionRouter.RegisterRoutes(
+		usersTransport.Routes()...,
+	)
+	server.RegisterAPIRoutes(
+		apiVersionRouter,
+	)
 
 	if err = server.Run(ctx); err != nil {
-		logger.Error("server run",
-			zap.Error(err),
-		)
+		if !errors.Is(err, http.ErrServerClosed) {
+			logger.Error("server run",
+				zap.Error(err),
+			)
+		}
 	}
 }

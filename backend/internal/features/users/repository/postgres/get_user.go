@@ -21,9 +21,9 @@ func (u *UserRepository) GetUser(
 	defer cancel()
 
 	query := `
-SELECT id, name, email, pass, created_at
+SELECT user_id, user_name, email, password, created_at
 FROM algotrade.users
-WHERE id=$1;
+WHERE user_id=$1;
 `
 
 	row := u.pool.QueryRow(ctx, query, id)
@@ -34,7 +34,7 @@ WHERE id=$1;
 		&userModel.Name,
 		&userModel.Email,
 		&userModel.Password,
-		&userModel.CreateAt,
+		&userModel.CreatedAt,
 	)
 
 	if err != nil {
@@ -53,7 +53,7 @@ WHERE id=$1;
 
 	return domain.NewUser(
 		userModel.ID,
-		userModel.CreateAt,
+		userModel.CreatedAt,
 		userModel.Name,
 		userModel.Email,
 		userModel.Password,

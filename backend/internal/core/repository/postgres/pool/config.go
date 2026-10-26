@@ -19,7 +19,10 @@ type PoolConfig struct {
 func NewConfig() (PoolConfig, error) {
 	var config PoolConfig
 
-	if err := envconfig.Process("POSTGRES", &config); err != nil {
+	if err := envconfig.Process(
+		"POSTGRES",
+		&config,
+	); err != nil {
 		return PoolConfig{}, fmt.Errorf(
 			"process envconfig: %w",
 			err,

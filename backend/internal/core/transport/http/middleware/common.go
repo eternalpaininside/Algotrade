@@ -16,87 +16,111 @@ const RequestIDHeader = "X-Request-ID"
 
 func RequestID() Middleware {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			requestID := r.Header.Get(RequestIDHeader)
-			if strings.TrimSpace(requestID) == "" {
-				requestID = uuid.New().String()
-			}
+		return http.HandlerFunc(
+			func(
+				rw http.ResponseWriter,
+				r *http.Request,
+			) {
+				requestID := r.Header.Get(
+					RequestIDHeader,
+				)
+				if strings.TrimSpace(requestID) == "" {
+					requestID = uuid.New().String()
+				}
 
-			r.Header.Set(RequestIDHeader, requestID)
-			rw.Header().Set(RequestIDHeader, requestID)
+				r.Header.Set(RequestIDHeader, requestID)
+				rw.Header().Set(RequestIDHeader, requestID)
 
-			next.ServeHTTP(rw, r)
-		})
+				next.ServeHTTP(rw, r)
+			},
+		)
 	}
 }
 
 func Logging(logger *corelogger.Logger) Middleware {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			requestID := r.Header.Get(RequestIDHeader)
+		return http.HandlerFunc(
+			func(
+				rw http.ResponseWriter,
+				r *http.Request,
+			) {
+				requestID := r.Header.Get(
+					RequestIDHeader,
+				)
 
-			requestLogger := logger.With(
-				zap.String("request_id", requestID),
-				zap.String("url", r.URL.String()),
-			)
+				requestLogger := logger.With(
+					zap.String("request_id", requestID),
+					zap.String("url", r.URL.String()),
+				)
 
-			ctx := context.WithValue(
-				r.Context(),
-				"logger",
-				requestLogger,
-			)
+				ctx := context.WithValue(
+					r.Context(),
+					"logger",
+					requestLogger,
+				)
 
-			next.ServeHTTP(rw, r.WithContext(ctx))
-		})
+				next.ServeHTTP(rw, r.WithContext(ctx))
+			},
+		)
 	}
 }
 
 func Panic() Middleware {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			ctx := r.Context()
-			logger := corelogger.FromContext(ctx)
+		return http.HandlerFunc(
+			func(
+				rw http.ResponseWriter,
+				r *http.Request,
+			) {
+				ctx := r.Context()
+				logger := corelogger.FromContext(ctx)
 
-			handler := corehttpresponse.NewHTTPResponseHandler(
-				logger,
-				rw,
-			)
+				handler := corehttpresponse.NewHTTPResponseHandler(
+					logger,
+					rw,
+				)
 
-			defer func() {
-				if p := recover(); p != nil {
-					handler.PanicResponse(
-						p,
-						"unexpected panic during HTTP handler",
-					)
-				}
-			}()
+				defer func() {
+					if p := recover(); p != nil {
+						handler.PanicResponse(
+							p,
+							"unexpected panic during HTTP handler",
+						)
+					}
+				}()
 
-			next.ServeHTTP(rw, r)
-		})
+				next.ServeHTTP(rw, r)
+			},
+		)
 	}
 }
 
 func Trace() Middleware {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := r.Context()
-			log := corelogger.FromContext(ctx)
-			start := time.Now()
-			rw := corehttpresponse.NewResponseWriter(w)
+		return http.HandlerFunc(
+			func(
+				w http.ResponseWriter,
+				r *http.Request,
+			) {
+				ctx := r.Context()
+				log := corelogger.FromContext(ctx)
+				start := time.Now()
+				rw := corehttpresponse.NewResponseWriter(w)
 
-			log.Debug(
-				">>> incoming HTTP request",
-				zap.String("http_method", r.Method),
-				zap.Time("time", start.UTC()),
-			)
+				log.Debug(
+					">>> incoming HTTP request",
+					zap.String("http_method", r.Method),
+					zap.Time("time", start.UTC()),
+				)
 
-			next.ServeHTTP(rw, r)
+				next.ServeHTTP(rw, r)
 
-			log.Debug(
-				"<<< done HTTP request",
-				zap.Int("status_code", rw.StatusCodeOrPanic()),
-				zap.Duration("latency", time.Since(start)),
-			)
-		})
+				log.Debug(
+					"<<< done HTTP request",
+					zap.Int("status_code", rw.StatusCodeOrPanic()),
+					zap.Duration("latency", time.Since(start)),
+				)
+			},
+		)
 	}
 }

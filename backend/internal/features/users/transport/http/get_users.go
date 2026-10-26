@@ -17,7 +17,10 @@ const (
 
 type GetUsersResponse []UserDTOResponse
 
-func (u *UserHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
+func (u *UserHTTPHandler) GetUsers(
+	rw http.ResponseWriter,
+	r *http.Request,
+) {
 	ctx := r.Context()
 	log := corelogger.FromContext(ctx)
 	responseHandler := corehttpresponse.NewHTTPResponseHandler(
@@ -36,7 +39,11 @@ func (u *UserHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userDomains, err := u.userService.GetUsers(ctx, limit, offset)
+	userDomains, err := u.userService.GetUsers(
+		ctx,
+		limit,
+		offset,
+	)
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
@@ -45,9 +52,15 @@ func (u *UserHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usersDTO := GetUsersResponse(usersDTOFromDomains(userDomains))
-
-	responseHandler.JSONResponse(usersDTO, http.StatusOK)
+	usersDTO := GetUsersResponse(
+		usersDTOFromDomains(
+			userDomains,
+		),
+	)
+	responseHandler.JSONResponse(
+		usersDTO,
+		http.StatusOK,
+	)
 }
 
 func getPaginationQueryParams(
@@ -64,7 +77,8 @@ func getPaginationQueryParams(
 	}
 
 	if offset, err = corehttputils.GetIntQueryParams(
-		r, OffsetKey); err != nil {
+		r, OffsetKey,
+	); err != nil {
 		return nil, nil, fmt.Errorf(
 			"get '%s' query param: %w",
 			OffsetKey,

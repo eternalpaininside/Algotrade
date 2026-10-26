@@ -100,22 +100,27 @@ func (h *HTTPResponseHandler) ErrorResponse(
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Warn
 		responseErr = ErrBadRequest
+
 	case errors.Is(err, coreerrors.ErrNotFound):
 		statusCode = http.StatusNotFound
 		logFunc = h.log.Debug
 		responseErr = ErrNotFound
+
 	case errors.Is(err, coreerrors.ErrConflict):
 		statusCode = http.StatusConflict
 		logFunc = h.log.Warn
 		responseErr = ErrConflict
+
 	case errors.Is(err, coreerrors.ErrTooLarge):
 		statusCode = http.StatusRequestEntityTooLarge
 		logFunc = h.log.Warn
 		responseErr = ErrTooLargeRequest
+
 	case errors.Is(err, coreerrors.ErrValidation):
 		statusCode = http.StatusUnprocessableEntity
 		logFunc = h.log.Warn
 		responseErr = ErrValidation
+
 	default:
 		statusCode = http.StatusInternalServerError
 		logFunc = h.log.Error

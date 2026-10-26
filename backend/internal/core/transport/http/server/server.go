@@ -100,7 +100,9 @@ func (h *HTTPServer) Run(
 		)
 		defer cancel()
 
-		if err := server.Shutdown(shutdownContext); err != nil {
+		if err := server.Shutdown(
+			shutdownContext,
+		); err != nil {
 			_ = server.Close()
 
 			return fmt.Errorf(

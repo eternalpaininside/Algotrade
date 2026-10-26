@@ -12,17 +12,27 @@ import (
 
 var requestValidator = validator.New()
 
+type validatable interface {
+	Validate() error
+}
+
 func DecodeAndValidateRequest(
 	r *http.Request,
 	dest any,
 ) error {
-	r.Body = http.MaxBytesReader(nil, r.Body, 1<<20)
+	r.Body = http.MaxBytesReader(
+		nil,
+		r.Body,
+		1<<20,
+	)
 	if err := jsonv2.UnmarshalRead(
 		r.Body,
 		dest,
 		jsonv2.RejectUnknownMembers(true),
 	); err != nil {
-		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
+		if _, ok := errors.AsType[*http.MaxBytesError](
+			err,
+		); ok {
 			return fmt.Errorf(
 				"%w: %w",
 				coreerrors.ErrTooLarge,
@@ -37,18 +47,32 @@ func DecodeAndValidateRequest(
 		)
 	}
 
-	if err := requestValidator.Struct(dest); err != nil {
-		if _, ok := errors.AsType[validator.ValidationErrors](err); ok {
+	if v, ok := dest.(validatable); ok {
+		if err := v.Validate(); err != nil {
 			return fmt.Errorf(
-				"%w: %w",
+				"%v: %w",
+				err,
 				coreerrors.ErrInvalidArgument,
+			)
+		}
+	} else {
+		if err := requestValidator.Struct(
+			dest,
+		); err != nil {
+			if _, ok := errors.AsType[validator.ValidationErrors](
+				err,
+			); ok {
+				return fmt.Errorf(
+					"%v: %w",
+					err,
+					coreerrors.ErrInvalidArgument,
+				)
+			}
+			return fmt.Errorf(
+				"request validation: %w",
 				err,
 			)
 		}
-		return fmt.Errorf(
-			"request validation: %w",
-			err,
-		)
 	}
 
 	return nil

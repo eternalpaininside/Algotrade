@@ -19,7 +19,7 @@ func (u *UserRepository) DeleteUser(
 
 	query := `
 DELETE FROM algotrade.users
-WHERE id=$1;
+WHERE user_id=$1;
 `
 	tag, err := u.pool.Exec(ctx, query, id)
 	if err != nil {

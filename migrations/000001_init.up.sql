@@ -6,12 +6,12 @@ SET LOCAL search_path TO algotrade;
 
 CREATE TABLE users (
     user_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    username VARCHAR(50) NOT NULL
-        CHECK (length(trim(username)) > 0),
+    user_name VARCHAR(50) NOT NULL
+        CHECK (length(trim(user_name)) > 0),
     email VARCHAR(254) NOT NULL
         CHECK (length(trim(email)) > 0 AND email = trim(email)),
-    password_hash TEXT NOT NULL
-        CHECK (length(trim(password_hash)) > 0),
+    password TEXT NOT NULL
+        CHECK (length(trim(password)) > 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

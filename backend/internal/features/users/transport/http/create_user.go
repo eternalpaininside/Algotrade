@@ -41,7 +41,11 @@ func (u *UserHTTPHandler) CreateUser(
 	}
 
 	userDomain := domainFromDTO(request)
-	userDomain, err := u.userService.CreateUser(ctx, userDomain)
+	userDomain, err := u.userService.CreateUser(
+		ctx,
+		request.Pass,
+		userDomain,
+	)
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
@@ -51,7 +55,11 @@ func (u *UserHTTPHandler) CreateUser(
 		return
 	}
 
-	response := CreateUserResponse(userDTOFromDomain(userDomain))
+	response := CreateUserResponse(
+		userDTOFromDomain(
+			userDomain,
+		),
+	)
 
 	responseHandler.JSONResponse(response, http.StatusCreated)
 }
@@ -62,6 +70,5 @@ func domainFromDTO(
 	return domain.NewUserUninitialized(
 		dto.Name,
 		dto.Email,
-		dto.Pass,
 	)
 }

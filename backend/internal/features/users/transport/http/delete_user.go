@@ -14,7 +14,6 @@ func (u *UserHTTPHandler) DeleteUser(
 ) {
 	ctx := r.Context()
 	log := corelogger.FromContext(ctx)
-
 	responseHandler := corehttpresponse.NewHTTPResponseHandler(
 		log,
 		rw,
@@ -32,7 +31,10 @@ func (u *UserHTTPHandler) DeleteUser(
 		return
 	}
 
-	if err = u.userService.DeleteUser(ctx, userID); err != nil {
+	if err = u.userService.DeleteUser(
+		ctx,
+		userID,
+	); err != nil {
 		responseHandler.ErrorResponse(
 			err,
 			"failed to delete user",
