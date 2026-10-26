@@ -39,6 +39,7 @@ func (u *UserHTTPHandler) DeleteUser(
 			err,
 			"failed to delete user",
 		)
+		return
 	}
 
 	responseHandler.NoContentResponse()

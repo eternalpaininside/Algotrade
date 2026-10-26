@@ -10,7 +10,7 @@ type Nullable[T any] struct {
 	domain.Nullable[T]
 }
 
-func (n Nullable[T]) UnmarshalJSON(
+func (n *Nullable[T]) UnmarshalJSON(
 	data []byte,
 ) error {
 	n.Set = true
@@ -34,7 +34,7 @@ func (n Nullable[T]) UnmarshalJSON(
 	return nil
 }
 
-func (n Nullable[T]) ToDomain() domain.Nullable[T] {
+func (n *Nullable[T]) ToDomain() domain.Nullable[T] {
 	return domain.Nullable[T]{
 		Value: n.Value,
 		Set:   n.Set,

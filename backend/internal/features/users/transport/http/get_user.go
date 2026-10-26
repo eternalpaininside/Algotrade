@@ -40,6 +40,7 @@ func (u *UserHTTPHandler) GetUser(
 			err,
 			"failed to get user",
 		)
+		return
 	}
 
 	response := GetUserResponse(
