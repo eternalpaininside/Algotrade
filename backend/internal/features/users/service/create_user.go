@@ -5,20 +5,31 @@ import (
 	"fmt"
 
 	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/domain"
+	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/transport/http/utils"
 )
 
 func (u *UserService) CreateUser(
 	ctx context.Context,
+	password string,
 	user domain.User,
 ) (domain.User, error) {
-	if err := user.Validate(); err != nil {
+	salt, hash, err := corehttputils.PasswordHashing(password)
+	if err != nil {
+		return domain.User{}, fmt.Errorf(
+			"hash password: %w",
+			err,
+		)
+	}
+	user.PassHash = corehttputils.ConcatHash(salt, hash)
+
+	if err = user.Validate(); err != nil {
 		return domain.User{}, fmt.Errorf(
 			"validate user domain: %w",
 			err,
 		)
 	}
 
-	user, err := u.repository.CreateUser(
+	user, err = u.repository.CreateUser(
 		ctx,
 		user,
 	)

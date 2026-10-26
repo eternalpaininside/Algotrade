@@ -19,6 +19,7 @@ type UserHTTPHandler struct {
 type UserService interface {
 	CreateUser(
 		ctx context.Context,
+		password string,
 		user domain.User,
 	) (domain.User, error)
 	GetUsers(
@@ -35,6 +36,8 @@ type UserService interface {
 	) error
 	PatchUser(
 		ctx context.Context,
+		id int,
+		user domain.UserPatch,
 	) (domain.User, error)
 }
 

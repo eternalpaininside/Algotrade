@@ -7,11 +7,11 @@ import (
 )
 
 type UserModel struct {
-	ID       int64
-	Name     string
-	Email    string
-	Password string
-	CreateAt time.Time
+	ID        int64
+	Name      string
+	Email     string
+	Password  string
+	CreatedAt time.Time
 }
 
 func userDomainsFromModels(
@@ -21,7 +21,7 @@ func userDomainsFromModels(
 	for _, user := range users {
 		userDomains = append(userDomains, domain.NewUser(
 			user.ID,
-			user.CreateAt,
+			user.CreatedAt,
 			user.Name,
 			user.Email,
 			user.Password,

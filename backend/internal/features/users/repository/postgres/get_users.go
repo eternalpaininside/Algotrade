@@ -53,7 +53,7 @@ OFFSET $2;
 			&userModel.Name,
 			&userModel.Email,
 			&userModel.Password,
-			&userModel.CreateAt,
+			&userModel.CreatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf(

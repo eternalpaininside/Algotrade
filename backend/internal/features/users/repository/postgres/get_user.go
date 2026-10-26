@@ -34,7 +34,7 @@ WHERE user_id=$1;
 		&userModel.Name,
 		&userModel.Email,
 		&userModel.Password,
-		&userModel.CreateAt,
+		&userModel.CreatedAt,
 	)
 
 	if err != nil {
@@ -53,7 +53,7 @@ WHERE user_id=$1;
 
 	return domain.NewUser(
 		userModel.ID,
-		userModel.CreateAt,
+		userModel.CreatedAt,
 		userModel.Name,
 		userModel.Email,
 		userModel.Password,
