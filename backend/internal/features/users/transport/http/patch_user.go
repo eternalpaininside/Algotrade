@@ -28,7 +28,7 @@ func (p *PatchUserRequest) String() string {
 }
 
 func (p *PatchUserRequest) Validate() error {
-	if p.Name.Set{
+	if p.Name.Set {
 		if p.Name.Value == nil {
 			return fmt.Errorf("name cannot be null")
 		}
@@ -38,7 +38,7 @@ func (p *PatchUserRequest) Validate() error {
 		}
 	}
 
-	if p.Email.Set{
+	if p.Email.Set {
 		if p.Email.Value == nil {
 			return fmt.Errorf("email cannot be null")
 		}
@@ -48,7 +48,7 @@ func (p *PatchUserRequest) Validate() error {
 		}
 	}
 
-	if p.Pass.Set{
+	if p.Pass.Set {
 		if p.Pass.Value == nil {
 			return fmt.Errorf("password cannot be null")
 		}
@@ -108,7 +108,7 @@ func (u *UserHTTPHandler) PatchUser(
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
-			"failed to patch user",
+			"service failed to patch user",
 		)
 		return
 	}

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	coreerrors "github.com/eternalpaininside/Algotrade.git/backend/internal/core/errors"
-	corehttputils "github.com/eternalpaininside/Algotrade.git/backend/internal/core/transport/http/utils"
 )
 
 type User struct {
@@ -129,14 +128,14 @@ func (u *User) ApplyPatch(
 		tmp.Email = *patch.Email.Value
 	}
 	if patch.Pass.Set {
-		salt, hash, err := corehttputils.PasswordHashing(*patch.Pass.Value)
+		salt, hash, err := PasswordHashing(*patch.Pass.Value)
 		if err != nil {
 			return fmt.Errorf(
 				"hashing password: %w",
 				err,
 			)
 		}
-		tmp.PassHash = corehttputils.ConcatHash(salt, hash)
+		tmp.PassHash = ConcatHash(salt, hash)
 	}
 
 	if err := tmp.Validate(); err != nil {

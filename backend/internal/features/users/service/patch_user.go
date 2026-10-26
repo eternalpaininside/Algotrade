@@ -30,7 +30,6 @@ func (u *UserService) PatchUser(
 		)
 	}
 
-
 	patched, err := u.repository.PatchUser(
 		ctx,
 		id,
@@ -38,7 +37,7 @@ func (u *UserService) PatchUser(
 	)
 	if err != nil {
 		return domain.User{}, fmt.Errorf(
-			"failed to patch user: %w",
+			"repository failed to patch user: %w",
 			err,
 		)
 	}

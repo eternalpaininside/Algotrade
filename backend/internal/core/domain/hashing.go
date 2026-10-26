@@ -1,4 +1,4 @@
-package corehttputils
+package domain
 
 import (
 	"crypto/rand"

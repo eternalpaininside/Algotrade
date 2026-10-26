@@ -31,7 +31,7 @@ WHERE user_id = $4
 RETURNING 
 	user_id,
 	user_name,
-	email
+	email,
 	password,
 	created_at;
 `
@@ -41,6 +41,7 @@ RETURNING
 		query,
 		user.Name,
 		user.Email,
+		user.PassHash,
 		id,
 	)
 
