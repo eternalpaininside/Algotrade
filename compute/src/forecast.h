@@ -15,9 +15,13 @@ struct ForecastResult {
   double error;
 };
 
-vector<double> Calculate_SMA(const vector<double>& prices);
+vector<double> Calculate_SMA(const vector<double>& prices, const size_t window);
 
-std::optional<double> Calculate_MAE(
-  const vector<ForecastResult>& results,
-  size_t first_target_index);
+std::optional<double> Calculate_MAE(const vector<ForecastResult>& results,
+                                    size_t first_target_index);
 
+vector<ForecastResult> Calculate_Momentum(const vector<double>& prices, const size_t window);
+
+vector<double> Calculate_EMA(const vector<double>& prices, const double alpha);
+
+vector<double> Calculate_linear_trend(const vector<double>& prices, const size_t window);
