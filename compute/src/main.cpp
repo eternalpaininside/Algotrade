@@ -1,3 +1,4 @@
+#include "forecast.h"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -11,53 +12,6 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-struct ForecastResult {
-  size_t target_index;
-  double predicted_price;
-  double actual_price;
-  double error;
-};
-
-vector<double> Calculate_SMA(const vector<double>& prices) {
-  if (prices.size() < 4) {
-    return vector<double>{};
-  }
-
-  vector<double> sma;
-
-  for (size_t i = 3; i < prices.size(); ++i) {
-    sma.push_back(
-      (prices[i - 2] + prices[i - 1] + prices[i - 3]) / 3
-    );
-  }
-
-  return sma;
-}
-
-std::optional<double> Calculate_MAE(
-  const vector<ForecastResult>& results,
-  size_t first_target_index
-) {
-  double total_error = 0;
-  size_t count = 0;
-
-  for (size_t i = 0; i < results.size(); ++i) {
-    if (results[i].target_index < first_target_index) {
-      continue;
-    }
-
-    total_error += std::abs(results[i].error);
-    ++count;
-  }
-
-  if (count == 0) {
-    return std::nullopt;
-  }
-
-  double mae = total_error / static_cast<double>(count);
-  return mae;
-}
-
 int main() {
   setlocale(LC_ALL, "RU");
   std::ios_base::sync_with_stdio(false);
@@ -67,35 +21,48 @@ int main() {
       100, 102, 101, 104, 105, 100, 101, 101, 103, 101.5
   };
 
-  vector<ForecastResult> results;
+  size_t window = 4;
+  const double alpha = 0.5;
 
-  if (prices.size() >= 2) {
-    for (size_t i = 1; i < prices.size(); ++i) {
-      results.push_back({
-          i,
-          prices[i - 1],
-          prices[i],
-          prices[i - 1] - prices[i]
-        });
+  vector<double> coefficients(4);
+
+  cout << "Введите коэффициенты в порядке Momentum, SMA, EMA, Trend. "
+    << "Их сумма должна быть 1:\n";
+
+  for (double& coefficient : coefficients) {
+    if (!(cin >> coefficient)) {
+      std::cerr << "Не удалось прочитать коэффициент\n";
+      return 1;
     }
-  } else {
-    std::cerr << "Данных недостаточно\n";
+  }
+
+  const vector<ForecastResult> momentum_results =
+    Calculate_Momentum(prices, window);
+
+  const vector<double> sma_predictions =
+    Calculate_SMA(prices, window);
+
+  const vector<double> ema_predictions =
+    Calculate_EMA(prices, alpha);
+
+  const vector<double> trend_predictions =
+    Calculate_linear_trend(prices, window);
+
+  const vector<ForecastResult> mixed_results =
+    Calculate_mixed(prices, window, alpha, coefficients);
+
+  if (mixed_results.empty()) {
+    std::cerr << "Не удалось рассчитать смешанный прогноз. "
+      "Проверь коэффициенты и параметры.\n";
     return 1;
   }
 
-  cout << "------------\n";
-
-  for (const auto& i : prices) {
-    cout << i << " ";
-  }
-
-  cout << "\n------------\n";
-
-  const vector<double> sma_predictions = Calculate_SMA(prices);
   vector<ForecastResult> sma_results;
+  vector<ForecastResult> ema_results;
+  vector<ForecastResult> trend_results;
 
-  for (size_t i = 3; i < prices.size(); ++i) {
-    const double sma_price = sma_predictions[i - 3];
+  for (size_t i = window; i < prices.size(); ++i) {
+    const double sma_price = sma_predictions[i - window];
 
     sma_results.push_back({
         i,
@@ -105,39 +72,123 @@ int main() {
       });
   }
 
-  cout << std::left << std::setw(12) << "Target"
-    << std::right << std::setw(12) << "Actual"
-    << std::setw(16) << "Last price"
-    << std::setw(12) << "SMA"
-    << std::setw(16) << "Last Error"
-    << std::setw(12) << "SMA error" << '\n';
+  for (size_t i = 1; i < prices.size(); ++i) {
+    const double ema_price = ema_predictions[i - 1];
+
+    ema_results.push_back({
+        i,
+        ema_price,
+        prices[i],
+        ema_price - prices[i]
+      });
+  }
+
+  for (size_t i = window; i < prices.size(); ++i) {
+    const double trend_price = trend_predictions[i - window];
+
+    trend_results.push_back({
+        i,
+        trend_price,
+        prices[i],
+        trend_price - prices[i]
+      });
+  }
+
+  cout << "Window = " << window << '\n';
+  cout << "Alpha = " << alpha << '\n';
+  cout << "------------\n";
+
+  for (const auto& i : prices) {
+    cout << i << " ";
+  }
+
+  cout << "\n------------\n";
+
+  cout << std::left << std::setw(10) << "Target"
+    << std::right << std::setw(10) << "Actual"
+    << std::setw(12) << "Momentum"
+    << std::setw(10) << "SMA"
+    << std::setw(10) << "EMA"
+    << std::setw(10) << "Trend"
+    << std::setw(12) << "Mixed"
+    << std::setw(17) << "Momentum error"
+    << std::setw(12) << "SMA error"
+    << std::setw(12) << "EMA error"
+    << std::setw(13) << "Trend error"
+    << std::setw(12) << "Mixed error" << '\n';
 
   cout << std::fixed << std::setprecision(2);
 
   for (size_t i = 0; i < prices.size(); ++i) {
-    cout << std::left << std::setw(12) << i
-      << std::right << std::setw(12) << prices[i];
+    cout << std::left << std::setw(10) << i
+      << std::right << std::setw(10) << prices[i];
 
-    if (i >= 1) {
-      cout << std::setw(16) << results[i - 1].predicted_price;
+    if (i >= window) {
+      cout << std::setw(12)
+        << momentum_results[i - window].predicted_price;
     } else {
-      cout << std::setw(16) << "";
+      cout << std::setw(12) << "";
     }
 
-    if (i >= 3) {
-      cout << std::setw(12) << sma_results[i - 3].predicted_price;
+    if (i >= window) {
+      cout << std::setw(10)
+        << sma_results[i - window].predicted_price;
+    } else {
+      cout << std::setw(10) << "";
+    }
+
+    if (i >= 1) {
+      cout << std::setw(10)
+        << ema_results[i - 1].predicted_price;
+    } else {
+      cout << std::setw(10) << "";
+    }
+
+    if (i >= window) {
+      cout << std::setw(10)
+        << trend_results[i - window].predicted_price;
+    } else {
+      cout << std::setw(10) << "";
+    }
+
+    if (i >= window) {
+      cout << std::setw(12)
+        << mixed_results[i - window].predicted_price;
+    } else {
+      cout << std::setw(12) << "";
+    }
+
+    if (i >= window) {
+      cout << std::setw(17)
+        << momentum_results[i - window].error;
+    } else {
+      cout << std::setw(17) << "";
+    }
+
+    if (i >= window) {
+      cout << std::setw(12)
+        << sma_results[i - window].error;
     } else {
       cout << std::setw(12) << "";
     }
 
     if (i >= 1) {
-      cout << std::setw(16) << results[i - 1].error;
+      cout << std::setw(12)
+        << ema_results[i - 1].error;
     } else {
-      cout << std::setw(16) << "";
+      cout << std::setw(12) << "";
     }
 
-    if (i >= 3) {
-      cout << std::setw(12) << sma_results[i - 3].error;
+    if (i >= window) {
+      cout << std::setw(13)
+        << trend_results[i - window].error;
+    } else {
+      cout << std::setw(13) << "";
+    }
+
+    if (i >= window) {
+      cout << std::setw(12)
+        << mixed_results[i - window].error;
     } else {
       cout << std::setw(12) << "";
     }
@@ -145,19 +196,40 @@ int main() {
     cout << '\n';
   }
 
-  const auto last_price_mae = Calculate_MAE(results, 3);
-  const auto sma_mae = Calculate_MAE(sma_results, 3);
+  const auto momentum_mae = Calculate_MAE(momentum_results, window);
+  const auto sma_mae = Calculate_MAE(sma_results, window);
+  const auto ema_mae = Calculate_MAE(ema_results, window);
+  const auto trend_mae = Calculate_MAE(trend_results, window);
+  const auto mixed_mae = Calculate_MAE(mixed_results, window);
 
-  if (last_price_mae.has_value()) {
-    cout << "MAE Last price = " << *last_price_mae << '\n';
+  if (momentum_mae.has_value()) {
+    cout << "MAE Momentum = " << *momentum_mae << '\n';
   } else {
-    cout << "MAE Last price посчитать невозможно\n";
+    cout << "MAE Momentum посчитать невозможно\n";
   }
 
   if (sma_mae.has_value()) {
     cout << "MAE SMA = " << *sma_mae << '\n';
   } else {
     cout << "MAE SMA посчитать невозможно\n";
+  }
+
+  if (ema_mae.has_value()) {
+    cout << "MAE EMA = " << *ema_mae << '\n';
+  } else {
+    cout << "MAE EMA посчитать невозможно\n";
+  }
+
+  if (trend_mae.has_value()) {
+    cout << "MAE Trend = " << *trend_mae << '\n';
+  } else {
+    cout << "MAE Trend посчитать невозможно\n";
+  }
+
+  if (mixed_mae.has_value()) {
+    cout << "MAE Mixed = " << *mixed_mae << '\n';
+  } else {
+    cout << "MAE Mixed посчитать невозможно\n";
   }
 
   cout << "\n------------\n";
