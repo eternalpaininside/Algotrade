@@ -24,6 +24,18 @@ int main() {
   size_t window = 4;
   const double alpha = 0.5;
 
+  vector<double> coefficients(4);
+
+  cout << "Введите коэффициенты в порядке Momentum, SMA, EMA, Trend. "
+    << "Их сумма должна быть 1:\n";
+
+  for (double& coefficient : coefficients) {
+    if (!(cin >> coefficient)) {
+      std::cerr << "Не удалось прочитать коэффициент\n";
+      return 1;
+    }
+  }
+
   const vector<ForecastResult> momentum_results =
     Calculate_Momentum(prices, window);
 
@@ -35,6 +47,15 @@ int main() {
 
   const vector<double> trend_predictions =
     Calculate_linear_trend(prices, window);
+
+  const vector<ForecastResult> mixed_results =
+    Calculate_mixed(prices, window, alpha, coefficients);
+
+  if (mixed_results.empty()) {
+    std::cerr << "Не удалось рассчитать смешанный прогноз. "
+      "Проверь коэффициенты и параметры.\n";
+    return 1;
+  }
 
   vector<ForecastResult> sma_results;
   vector<ForecastResult> ema_results;
@@ -89,10 +110,12 @@ int main() {
     << std::setw(10) << "SMA"
     << std::setw(10) << "EMA"
     << std::setw(10) << "Trend"
+    << std::setw(12) << "Mixed"
     << std::setw(17) << "Momentum error"
     << std::setw(12) << "SMA error"
     << std::setw(12) << "EMA error"
-    << std::setw(13) << "Trend error" << '\n';
+    << std::setw(13) << "Trend error"
+    << std::setw(12) << "Mixed error" << '\n';
 
   cout << std::fixed << std::setprecision(2);
 
@@ -129,6 +152,13 @@ int main() {
     }
 
     if (i >= window) {
+      cout << std::setw(12)
+        << mixed_results[i - window].predicted_price;
+    } else {
+      cout << std::setw(12) << "";
+    }
+
+    if (i >= window) {
       cout << std::setw(17)
         << momentum_results[i - window].error;
     } else {
@@ -156,6 +186,13 @@ int main() {
       cout << std::setw(13) << "";
     }
 
+    if (i >= window) {
+      cout << std::setw(12)
+        << mixed_results[i - window].error;
+    } else {
+      cout << std::setw(12) << "";
+    }
+
     cout << '\n';
   }
 
@@ -163,6 +200,7 @@ int main() {
   const auto sma_mae = Calculate_MAE(sma_results, window);
   const auto ema_mae = Calculate_MAE(ema_results, window);
   const auto trend_mae = Calculate_MAE(trend_results, window);
+  const auto mixed_mae = Calculate_MAE(mixed_results, window);
 
   if (momentum_mae.has_value()) {
     cout << "MAE Momentum = " << *momentum_mae << '\n';
@@ -186,6 +224,12 @@ int main() {
     cout << "MAE Trend = " << *trend_mae << '\n';
   } else {
     cout << "MAE Trend посчитать невозможно\n";
+  }
+
+  if (mixed_mae.has_value()) {
+    cout << "MAE Mixed = " << *mixed_mae << '\n';
+  } else {
+    cout << "MAE Mixed посчитать невозможно\n";
   }
 
   cout << "\n------------\n";
