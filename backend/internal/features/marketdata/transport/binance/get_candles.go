@@ -48,8 +48,58 @@ func (c *Client) GetCandles(
 	cursor := from
 
 	for cursor.Before(to) {
-		rows, err := c.getKlines
+		rows, err := c.getKlines(
+			ctx,
+			symbol,
+			interval,
+			cursor,
+			to,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(rows) == 0 {
+			break
+		}
+
+		var lastOpenedAt time.Time
+
+		for _, row := range rows {
+			candle, err := row.toDomain(
+				c.exchangeID,
+				symbol,
+				interval,
+			)
+			if err != nil {
+				return nil, err
+			}
+
+			if candle.OpenedAt.Before(from) ||
+				!candle.OpenedAt.Before(to) {
+				continue
+			}
+
+			candles = append(
+				candles,
+				candle,
+			)
+			lastOpenedAt = candle.OpenedAt
+		}
+
+		if len(rows) < maxKlinesPerReuest {
+			break
+		}
+
+		nextCursor := lastOpenedAt.Add(time.Millisecond)
+		if cursor.After(nextCursor) {
+			return nil, errors.New("Binance kline pagination did not advance")
+		}
+
+		cursor = nextCursor
 	}
+
+	return candles, nil
 }
 
 func (c *Client) getKlines(

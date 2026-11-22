@@ -5,23 +5,24 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/domain"
 	corehttpserver "github.com/eternalpaininside/Algotrade.git/backend/internal/core/transport/http/server"
 )
 
 type MarketHTTPHandler struct{
-	marketService MarketService
+	marketService MarketDataService
 }
 
-type MarketService interface {
-	CollectCandles(
+type MarketDataService interface {
+	GetCandles(
 		ctx context.Context,
 		symbol, interval string,
 		from, to time.Time,
-	) (int, error)
+	) ([]domain.Candle, error)
 }
 
 func NewMarketHTTPHandler(
-	service MarketService,
+	service MarketDataService,
 ) *MarketHTTPHandler {
 	return &MarketHTTPHandler{
 		marketService: service,
@@ -31,9 +32,9 @@ func NewMarketHTTPHandler(
 func (m *MarketHTTPHandler) Routes() []corehttpserver.Route {
 	return []corehttpserver.Route{
 		{
-			Method: http.MethodPost,
-			Path: "/market-data/candles/collect",
-			Handler: m.CollectCandles,
+			Method: http.MethodGet,
+			Path: "/market-data/candles",
+			Handler: m.GetCandles,
 		},
 	}
 }
