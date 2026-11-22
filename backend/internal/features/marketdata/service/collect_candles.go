@@ -9,7 +9,7 @@ import (
 	coreerrors "github.com/eternalpaininside/Algotrade.git/backend/internal/core/errors"
 )
 
-func (m *MarketDataService) CollecttCandles(
+func (m *MarketDataService) CollectCandles(
 	ctx context.Context,
 	symbol, interval string,
 	from, to time.Time,
@@ -53,14 +53,15 @@ func (m *MarketDataService) CollecttCandles(
 		)
 	}
 
-	if err := m.repository.SaveCandles(
+	savedCount, err := m.repository.SaveCandles(
 		ctx,
 		candles,
-	); err != nil {
+	)
+	if err != nil {
 		return 0, fmt.Errorf(
 			"save candles in repository: %w",
 			err,
 		)
 	}
-	return len(candles), nil
+	return savedCount, nil
 }

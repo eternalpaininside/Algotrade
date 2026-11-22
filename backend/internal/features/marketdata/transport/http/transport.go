@@ -8,7 +8,7 @@ import (
 	corehttpserver "github.com/eternalpaininside/Algotrade.git/backend/internal/core/transport/http/server"
 )
 
-type MarketHTTPHandler struct{
+type MarketHTTPHandler struct {
 	marketService MarketDataService
 }
 
@@ -31,9 +31,9 @@ func NewMarketHTTPHandler(
 func (m *MarketHTTPHandler) Routes() []corehttpserver.Route {
 	return []corehttpserver.Route{
 		{
-			Method: http.MethodGet,
-			Path: "/market-data/candles",
-			Handler: m.GetCandles,
+			Method:  http.MethodPost,
+			Path:    "/market-data/candles/collect",
+			Handler: m.CollectCandles,
 		},
 	}
 }

@@ -25,7 +25,7 @@ type CandleRepository interface {
 	SaveCandles(
 		ctx context.Context,
 		candels []domain.Candle,
-	) error 
+	) (int, error) 
 }
 
 func NewMarketDataService(

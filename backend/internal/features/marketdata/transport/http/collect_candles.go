@@ -24,7 +24,7 @@ type CollectCandlesResponse struct {
 	CollectedCount int `json:"collected_count"`
 }
 
-func (h *MarketHTTPHandler) GetCandles(
+func (h *MarketHTTPHandler) CollectCandles(
 	rw http.ResponseWriter,
 	r *http.Request,
 ) {

@@ -23,7 +23,7 @@ type Candle struct {
 }
 
 func (c *Candle) Validate() error {
-	if c.ExchangeID < 0 {
+	if c.ExchangeID <= 0 {
 		return fmt.Errorf(
 			"negative exchange id: %d",
 			c.ExchangeID,
@@ -38,11 +38,11 @@ func (c *Candle) Validate() error {
 		return errors.New("empty candle interval")
 	}
 
-	if c.ClosedAt.Before(c.OpenedAt) {
+	if !c.OpenedAt.Before(c.ClosedAt) {
 		return fmt.Errorf(
-			"close time earlier than open time: %v and %v",
-			c.ClosedAt,
+			"invalid candle period: opened at %v and closed at %v",
 			c.OpenedAt,
+			c.ClosedAt,
 		)
 	}
 
