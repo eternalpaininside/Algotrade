@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/domain"
 	corehttpserver "github.com/eternalpaininside/Algotrade.git/backend/internal/core/transport/http/server"
 )
 
@@ -14,11 +13,11 @@ type MarketHTTPHandler struct{
 }
 
 type MarketDataService interface {
-	GetCandles(
+	CollectCandles(
 		ctx context.Context,
 		symbol, interval string,
 		from, to time.Time,
-	) ([]domain.Candle, error)
+	) (int, error)
 }
 
 func NewMarketHTTPHandler(
