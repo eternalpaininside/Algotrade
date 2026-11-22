@@ -150,7 +150,7 @@ func (r *CandleRepository) InsertCandles(
 		$6::DOUBLE PRECISION[],
 		$7::DOUBLE PRECISION[],
 		$8::DOUBLE PRECISION[]
-	) AS bach(open_time, open_price, high_price, low_price,
+	) AS batch(open_time, open_price, high_price, low_price,
 	close_price, volume)
 	ON CONFLICT (instrument_id, interval_seconds, open_time) DO NOTHING
 `
