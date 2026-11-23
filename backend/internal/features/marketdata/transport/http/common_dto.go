@@ -7,18 +7,18 @@ import (
 )
 
 type CandleDTO struct {
-	ExchangeID int64
-	Symbol     string
-	Interval   string
+	ExchangeID int64  `json:"exchange_id"`
+	Symbol     string `json:"symbol"`
+	Interval   string `json:"inteval"`
 
-	OpenedAt time.Time
-	ClosedAt time.Time
+	OpenedAt time.Time `json:"opened_at"`
+	ClosedAt time.Time `json:"closed_at"`
 
-	OpenPrice  float64
-	HighPrice  float64
-	LowPrice   float64
-	ClosePrice float64
-	Volume     float64
+	OpenPrice  float64 `json:"open_price"`
+	HighPrice  float64 `json:"high_price"`
+	LowPrice   float64 `json:"low_price"`
+	ClosePrice float64 `json:"close_price"`
+	Volume     float64 `json:"volume"`
 }
 
 func candleDTOFromDomain(
@@ -26,17 +26,16 @@ func candleDTOFromDomain(
 ) CandleDTO {
 	return CandleDTO{
 		ExchangeID: candle.ExchangeID,
-		Symbol: candle.Symbol,
-		Interval: candle.Interval,
-		
+		Symbol:     candle.Symbol,
+		Interval:   candle.Interval,
+
 		OpenedAt: candle.OpenedAt,
 		ClosedAt: candle.ClosedAt,
 
-		OpenPrice: candle.OpenPrice,
-		HighPrice: candle.HighPrice,
-		LowPrice: candle.LowPrice,
+		OpenPrice:  candle.OpenPrice,
+		HighPrice:  candle.HighPrice,
+		LowPrice:   candle.LowPrice,
 		ClosePrice: candle.ClosePrice,
-		Volume: candle.Volume,
+		Volume:     candle.Volume,
 	}
 }
-

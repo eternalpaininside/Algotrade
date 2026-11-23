@@ -15,8 +15,7 @@ type MarketDataService struct {
 type CandleSource interface {
 	GetCandles(
 		ctx context.Context,
-		symbol string,
-		interval string,
+		symbol, interval string,
 		from, to time.Time,
 	) ([]domain.Candle, error)
 }
@@ -26,6 +25,12 @@ type CandleRepository interface {
 		ctx context.Context,
 		candels []domain.Candle,
 	) (int, error) 
+	GetCandles(
+		ctx context.Context,
+		exchangeID int64,
+		symbol, interval string,
+		from, to time.Time,
+	) ([]domain.Candle, error)
 }
 
 func NewMarketDataService(

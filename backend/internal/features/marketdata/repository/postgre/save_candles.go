@@ -20,19 +20,11 @@ func (r *CandleRepository) SaveCandles(
 	}
 
 	first := candles[0]
-
-	var intervalSeconds int64
-	switch first.Interval {
-	case "1h":
-		intervalSeconds = 3600
-	case "1d":
-		intervalSeconds = 86400
-	default:
-		return 0, fmt.Errorf(
-			"unsupported candle interval %q: %w",
-			first.Interval,
-			coreerrors.ErrInvalidArgument,
-		)
+	intervalSeconds, err := secondsFromString(
+		first.Interval,
+	)
+	if err != nil {
+		return 0, err
 	}
 
 	openTimes := make([]time.Time, len(candles))
@@ -175,4 +167,24 @@ func (r *CandleRepository) InsertCandles(
 	}
 
 	return int(tag.RowsAffected()), nil
+}
+
+func secondsFromString(
+	interval string,
+) (int64, error) {
+	var intervalSeconds int64
+	switch interval {
+	case "1h":
+		intervalSeconds = 3600
+	case "1d":
+		intervalSeconds = 86400
+	default:
+		return 0, fmt.Errorf(
+			"unsupported candle interval %q: %w",
+			interval,
+			coreerrors.ErrInvalidArgument,
+		)
+	}
+
+	return intervalSeconds, nil
 }
