@@ -34,14 +34,14 @@ func DecodeAndValidateRequest(
 			err,
 		); ok {
 			return fmt.Errorf(
-				"%v: %w",
+				"%w: %w",
 				coreerrors.ErrTooLarge,
 				err,
 			)
 		}
 
 		return fmt.Errorf(
-			"%w: json unmarshal read: %v",
+			"%w: json unmarshal read: %w",
 			coreerrors.ErrInvalidArgument,
 			err,
 		)
