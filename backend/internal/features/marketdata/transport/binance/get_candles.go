@@ -43,6 +43,7 @@ func (c *Client) GetCandles(
 	}
 
 	from, to = from.UTC(), to.UTC()
+	now := time.Now()
 
 	var candles []domain.Candle
 	cursor := from
@@ -75,8 +76,12 @@ func (c *Client) GetCandles(
 				return nil, err
 			}
 
+			lastOpenedAt = candle.OpenedAt
 			if candle.OpenedAt.Before(from) ||
 				!candle.OpenedAt.Before(to) {
+				continue
+			}
+			if candle.ClosedAt.Add(time.Millisecond).After(now) {
 				continue
 			}
 
@@ -84,7 +89,6 @@ func (c *Client) GetCandles(
 				candles,
 				candle,
 			)
-			lastOpenedAt = candle.OpenedAt
 		}
 
 		if len(rows) < maxKlinesPerReuest {
@@ -92,7 +96,7 @@ func (c *Client) GetCandles(
 		}
 
 		nextCursor := lastOpenedAt.Add(time.Millisecond)
-		if cursor.After(nextCursor) {
+		if !nextCursor.After(cursor) {
 			return nil, errors.New("Binance kline pagination did not advance")
 		}
 
@@ -113,7 +117,7 @@ func (c *Client) getKlines(
 		"klines",
 	)
 
-	var query url.Values
+	query := make(url.Values, 5)
 	query.Set("symbol", symbol)
 	query.Set("interval", interval)
 	query.Set(
@@ -161,7 +165,7 @@ func (c *Client) getKlines(
 
 	if response.StatusCode != http.StatusOK {
 		body, err := io.ReadAll(
-			io.LimitReader(request.Body, 4*1024),
+			io.LimitReader(response.Body, 4*1024),
 		)
 		if err != nil {
 			return nil, fmt.Errorf(
@@ -180,7 +184,7 @@ func (c *Client) getKlines(
 	var rows []klineRow
 
 	if err = json.NewDecoder(
-		request.Body,
+		response.Body,
 	).Decode(&rows); err != nil {
 		return nil, fmt.Errorf(
 			"decode Binance klines response: %w",

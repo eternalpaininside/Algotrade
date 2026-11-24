@@ -15,8 +15,8 @@ const (
 
 type Config struct {
 	ExchangeID int64
-	BaseURL    string
-	Timeout    time.Duration
+	BaseURL string
+	Timeout time.Duration
 }
 
 type Client struct {

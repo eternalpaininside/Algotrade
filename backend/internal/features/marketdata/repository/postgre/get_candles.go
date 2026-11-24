@@ -2,13 +2,10 @@ package marketdatapostgres
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/eternalpaininside/Algotrade.git/backend/internal/core/domain"
-	coreerrors "github.com/eternalpaininside/Algotrade.git/backend/internal/core/errors"
-	"github.com/jackc/pgx/v5"
 )
 
 func (r *CandleRepository) GetCandles(
@@ -46,24 +43,18 @@ func (r *CandleRepository) GetCandles(
 		ctx,
 		query,
 		exchangeID,
-		duration,
+		symbol,
 		seconds,
 		from,
 		to,
 	)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, fmt.Errorf(
-				"candles on exchange %d: %w",
-				exchangeID,
-				coreerrors.ErrNotFound,
-			)
-		}
 		return nil, fmt.Errorf(
 			"find candles: %w",
 			err,
 		)
 	}
+	defer rows.Close()
 
 	candles := make([]domain.Candle, 0)
 	for rows.Next() {

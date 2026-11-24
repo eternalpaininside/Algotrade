@@ -9,7 +9,7 @@ import (
 type CandleDTO struct {
 	ExchangeID int64  `json:"exchange_id"`
 	Symbol     string `json:"symbol"`
-	Interval   string `json:"inteval"`
+	Interval   string `json:"interval"`
 
 	OpenedAt time.Time `json:"opened_at"`
 	ClosedAt time.Time `json:"closed_at"`

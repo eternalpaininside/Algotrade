@@ -133,7 +133,7 @@ func parsePrice(
 
 	if err := json.Unmarshal(
 		data,
-		value,
+		&value,
 	); err != nil {
 		return 0, fmt.Errorf(
 			"unmarshal Binance %s: %w",
